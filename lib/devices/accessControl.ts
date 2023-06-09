@@ -1,14 +1,14 @@
-import { DomruAPI } from "../api";
+import { DomruApi } from "../api";
+import { DomruTypes } from "../types";
 import { DomruCamera } from "./camera";
-import { DomruSubscriberPlace } from "../types";
 
 export class DomruAccessControl {
-    private _api: DomruAPI;
+    private _api: DomruApi;
     private _placeId: number;
     private _accessControlId: number;
-    private _cache?: DomruSubscriberPlace['place']['accessControls'][0];
+    private _cache?: DomruTypes['subscriberPlace']['place']['accessControls'][0];
     
-    constructor(api: DomruAPI, placeId: number, accessControlId: number) {
+    constructor(api: DomruApi, placeId: number, accessControlId: number) {
         this._api = api;
         this._placeId = placeId;
         this._accessControlId = accessControlId;

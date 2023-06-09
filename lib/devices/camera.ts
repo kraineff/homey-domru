@@ -1,10 +1,10 @@
-import { DomruAPI } from "../api";
+import { DomruApi } from "../api";
 
 export class DomruCamera {
-    private _api: DomruAPI;
+    private _api: DomruApi;
     private _id: number;
     
-    constructor(api: DomruAPI, id: number) {
+    constructor(api: DomruApi, id: number) {
         this._api = api;
         this._id = id;
     }
