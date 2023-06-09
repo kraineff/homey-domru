@@ -1,0 +1,22 @@
+{
+    "2.0.0": {
+        "en": "Improved code and pairing screens",
+        "ru": "Улучшен код и экраны сопряжения"
+    },
+    "1.0.4": {
+        "en": "Added icons for access controls and cameras",
+        "ru": "Добавлены иконки для устройств доступа и камер"
+    },
+    "1.0.3": {
+        "en": "Improved pairing screens",
+        "ru": "Улучшены экраны сопряжения"
+    },
+    "1.0.2": {
+        "en": "Added support for intercoms and cameras",
+        "ru": "Добавлена поддержка домофонов и камер"
+    },
+    "1.0.1": {
+        "en": "First version",
+        "ru": "Первая версия"
+    }
+}
