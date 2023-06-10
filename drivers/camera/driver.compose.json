@@ -1,1 +1,26 @@
-{}
+{
+    "class": "camera",
+    "name": {
+        "en": "Camera",
+        "ru": "Камера"
+    },
+    "images": {
+        "small": "{{driverAssetsPath}}/images/small.jpg",
+        "large": "{{driverAssetsPath}}/images/large.jpg"
+    },
+    "connectivity": ["cloud"],
+    "capabilities": [],
+    "pair": [
+        {
+            "id": "list_devices",
+            "template": "list_devices",
+            "navigation": {
+                "next": "add_devices"
+            }
+        },
+        {
+            "id": "add_devices",
+            "template": "add_devices"
+        }
+    ]
+}

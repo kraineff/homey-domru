@@ -1,13 +1,18 @@
 import Homey from 'homey';
-import { DomruApi } from './lib';
+import { DomruApi, DomruTokens } from './lib';
+import { Accounts } from './accounts';
 
 export default class DomruApp extends Homey.App {
-    api!: DomruApi;
+    accounts!: Accounts<DomruTokens, {
+        api: DomruApi;
+    }>;
 
     async onInit() {
-        this.api = new DomruApi({
-            get: async () => JSON.parse(this.homey.settings.get('storage') || '{}'),
-            set: async content => this.homey.settings.set('storage', JSON.stringify(content))
+        this.accounts = new Accounts({
+            settings: this.homey.settings,
+            initParams: async ({ get, set }) => ({
+                api: new DomruApi({ get, set })
+            })
         });
     }
 }

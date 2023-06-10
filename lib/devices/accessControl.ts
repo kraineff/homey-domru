@@ -4,28 +4,26 @@ import { DomruCamera } from "./camera";
 
 export class DomruAccessControl {
     private _api: DomruApi;
-    private _placeId: number;
-    private _accessControlId: number;
-    private _cache?: DomruTypes['subscriberPlace']['place']['accessControls'][0];
+    private _id: number;
+    private _cache?: any;
     
-    constructor(api: DomruApi, placeId: number, accessControlId: number) {
+    constructor(api: DomruApi, id: number) {
         this._api = api;
-        this._placeId = placeId;
-        this._accessControlId = accessControlId;
+        this._id = id;
     }
 
-    async getInformation() {
+    async getInformation(): Promise<DomruTypes['subscriberPlace']['place']['accessControls'][0] & { placeId: number }> {
         if (this._cache) return this._cache;
 
         return await this._api.getSubscriberPlaces()
             .then(places => {
-                const place = places.find(place => place.place.id === this._placeId);
-                if (!place) throw new Error('Нет места');
+                const accessControl = places
+                    .map(({ place }) => place)
+                    .map(({ id, accessControls }) =>
+                        accessControls.map(accessControl => ({ ...accessControl, placeId: id }))).flat()
+                    .find(accessControl => accessControl.id === this._id);
 
-                const accessControl = place.place.accessControls
-                    .find(accessControl => accessControl.id === this._accessControlId);
                 if (!accessControl) throw new Error('Нет устройства доступа');
-
                 this._cache = accessControl;
                 return accessControl;
             });
@@ -43,6 +41,8 @@ export class DomruAccessControl {
     }
 
     async open() {
-        await this._api.accessControlAction(this._placeId, this._accessControlId, 'accessControlOpen');
+        const { placeId } = await this.getInformation();
+
+        await this._api.accessControlAction(placeId, this._id, 'accessControlOpen');
     }
 }
