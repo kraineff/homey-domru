@@ -1,0 +1,39 @@
+[
+    {
+        "type": "group",
+        "label": {
+            "en": "General",
+            "ru": "Основные"
+        },
+        "children": [
+            {
+                "id": "camera_interval",
+                "type": "number",
+                "label": {
+                    "en": "Camera Refresh Interval",
+                    "ru": "Интервал обновления камеры"
+                },
+                "units": {
+                    "en": "seconds",
+                    "ru": "секунды"
+                },
+                "min": 0,
+                "value": 0
+            },
+            {
+                "id": "open_duration",
+                "type": "number",
+                "label": {
+                    "en": "Open Duration",
+                    "ru": "Длительность открытия"
+                },
+                "units": {
+                    "en": "seconds",
+                    "ru": "секунды"
+                },
+                "min": 1,
+                "value": 5
+            }
+        ]
+    }
+]

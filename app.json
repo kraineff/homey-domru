@@ -36,18 +36,16 @@
   },
   "drivers": [
     {
-      "class": "lock",
-      "name": {
-        "en": "Access Control",
-        "ru": "Доступ"
-      },
+      "platforms": [
+        "local"
+      ],
+      "connectivity": [
+        "cloud"
+      ],
       "images": {
         "small": "/drivers/accessControl/assets/images/small.jpg",
         "large": "/drivers/accessControl/assets/images/large.jpg"
       },
-      "connectivity": [
-        "cloud"
-      ],
       "capabilities": [
         "locked"
       ],
@@ -64,21 +62,68 @@
           "template": "add_devices"
         }
       ],
-      "id": "accessControl"
+      "class": "lock",
+      "name": {
+        "en": "Access Control",
+        "ru": "Контроль доступа"
+      },
+      "capabilitiesOptions": {
+        "locked": {
+          "uiQuickAction": true
+        }
+      },
+      "id": "accessControl",
+      "settings": [
+        {
+          "type": "group",
+          "label": {
+            "en": "General",
+            "ru": "Основные"
+          },
+          "children": [
+            {
+              "id": "camera_interval",
+              "type": "number",
+              "label": {
+                "en": "Camera Refresh Interval",
+                "ru": "Интервал обновления камеры"
+              },
+              "units": {
+                "en": "seconds",
+                "ru": "секунды"
+              },
+              "min": 0,
+              "value": 0
+            },
+            {
+              "id": "open_duration",
+              "type": "number",
+              "label": {
+                "en": "Open Duration",
+                "ru": "Длительность открытия"
+              },
+              "units": {
+                "en": "seconds",
+                "ru": "секунды"
+              },
+              "min": 1,
+              "value": 5
+            }
+          ]
+        }
+      ]
     },
     {
-      "class": "camera",
-      "name": {
-        "en": "Camera",
-        "ru": "Камера"
-      },
+      "platforms": [
+        "local"
+      ],
+      "connectivity": [
+        "cloud"
+      ],
       "images": {
         "small": "/drivers/camera/assets/images/small.jpg",
         "large": "/drivers/camera/assets/images/large.jpg"
       },
-      "connectivity": [
-        "cloud"
-      ],
       "capabilities": [],
       "pair": [
         {
@@ -93,7 +138,37 @@
           "template": "add_devices"
         }
       ],
-      "id": "camera"
+      "class": "camera",
+      "name": {
+        "en": "Camera",
+        "ru": "Камера"
+      },
+      "id": "camera",
+      "settings": [
+        {
+          "type": "group",
+          "label": {
+            "en": "General",
+            "ru": "Основные"
+          },
+          "children": [
+            {
+              "id": "camera_interval",
+              "type": "number",
+              "label": {
+                "en": "Camera Refresh Interval",
+                "ru": "Интервал обновления камеры"
+              },
+              "units": {
+                "en": "seconds",
+                "ru": "секунды"
+              },
+              "min": 0,
+              "value": 0
+            }
+          ]
+        }
+      ]
     }
   ]
 }
