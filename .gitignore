@@ -1,4 +1,6 @@
-/env.json
-/node_modules/
-/.homeybuild/
+.homeybuild/
+drivers/*/pair/
+node_modules/
+
 .DS_Store
+env.json

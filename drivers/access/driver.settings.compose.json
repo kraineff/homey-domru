@@ -7,20 +7,6 @@
         },
         "children": [
             {
-                "id": "camera_interval",
-                "type": "number",
-                "label": {
-                    "en": "Camera Refresh Interval",
-                    "ru": "Интервал обновления камеры"
-                },
-                "units": {
-                    "en": "seconds",
-                    "ru": "секунды"
-                },
-                "min": 0,
-                "value": 0
-            },
-            {
                 "id": "open_duration",
                 "type": "number",
                 "label": {

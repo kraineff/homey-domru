@@ -1,8 +1,0 @@
-{
-    "class": "camera",
-    "name": {
-        "en": "Camera",
-        "ru": "Камера"
-    },
-    "$extends": ["base"]
-}

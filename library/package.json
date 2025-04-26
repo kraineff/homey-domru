@@ -1,0 +1,38 @@
+{
+    "name": "domru",
+    "version": "1.0.0",
+    "type": "module",
+    "description": "",
+    "keywords": ["domru"],
+    "engines": {
+        "node": ">=16"
+    },
+    "main": "./build/cjs/index.cjs",
+    "module": "./build/index.js",
+    "types": "./build/index.d.ts",
+    "exports": {
+        ".": {
+            "require": {
+                "types": "./build/cjs/index.d.ts",
+                "default": "./build/cjs/index.cjs"
+            },
+            "import": {
+                "types": "./build/index.d.ts",
+                "default": "./build/index.js"
+            }
+        },
+        "./package.json": "./package.json"
+    },
+    "files": ["build"],
+    "sideEffects": false,
+    "scripts": {
+        "build": "bun run scripts/build.ts"
+    },
+    "devDependencies": {
+        "@types/bun": "latest",
+        "typescript": "^5.8.3"
+    },
+    "dependencies": {
+        "wretch": "^2.11.0"
+    }
+}

@@ -1,11 +1,17 @@
 {
+    "class": "camera",
     "platforms": ["local"],
     "connectivity": ["cloud"],
+    "name": {
+        "en": "External camera",
+        "ru": "Внешняя камера"
+    },
     "images": {
         "small": "{{driverAssetsPath}}/images/small.jpg",
         "large": "{{driverAssetsPath}}/images/large.jpg"
     },
     "capabilities": [],
+    "capabilitiesOptions": {},
     "pair": [
         {
             "id": "list_devices",

@@ -1,0 +1,30 @@
+{
+    "class": "lock",
+    "platforms": ["local"],
+    "connectivity": ["cloud"],
+    "name": {
+        "en": "Access Control",
+        "ru": "Контроль доступа"
+    },
+    "images": {
+        "small": "{{driverAssetsPath}}/images/small.jpg",
+        "large": "{{driverAssetsPath}}/images/large.jpg"
+    },
+    "capabilities": ["locked"],
+    "capabilitiesOptions": {
+        "locked": { "uiQuickAction": true }
+    },
+    "pair": [
+        {
+            "id": "list_devices",
+            "template": "list_devices",
+            "navigation": {
+                "next": "add_devices"
+            }
+        },
+        {
+            "id": "add_devices",
+            "template": "add_devices"
+        }
+    ]
+}
