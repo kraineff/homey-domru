@@ -9,8 +9,24 @@ module.exports = class DomruCameraDriver extends Homey.Driver {
         this.api = (this.homey.app as DomruApp).api;
     }
 
-    async onPairListDevices() {
-        const devices = await this.api.getForpostCameras();
-        return devices.map(({ ID, Name }) => ({ name: Name, data: { id: ID } }));
+    async onPair(session: Homey.Driver.PairSession) {
+        session.setHandler("showView", async viewId => {
+            if (viewId === "list_accounts" && !!this.homey.settings.get("token"))
+                await session.showView("list_devices");
+        });
+        session.setHandler("authGetContracts", async phone => {
+            return await this.api.authGetContracts(phone);
+        });
+        session.setHandler("authGetCode", async ({ phone, contract }) => {
+            await this.api.authGetCode(phone, contract);
+            await new Promise(resolve => setTimeout(resolve, 3000));
+        });
+        session.setHandler("authWithCode", async ({ phone, contract, code }) => {
+            await this.api.authWithCode(phone, contract, code);
+        });
+        session.setHandler("list_devices", async () => {
+            const devices = await this.api.getForpostCameras();
+            return devices.map(({ ID, Name }) => ({ name: Name, data: { id: ID } }));
+        });
     }
 }

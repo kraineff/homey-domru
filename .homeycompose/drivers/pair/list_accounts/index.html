@@ -1,0 +1,182 @@
+<style>
+    .hidden { display: none; }
+    .visible { display: block; }
+</style>
+
+<div class="app">
+    <fieldset id="auth" class="homey-form-fieldset">
+        <div class="homey-form-group">
+            <label class="homey-form-label" for="authType">Тип авторизации</label>
+            <select class="homey-form-select" name="authType" id="authType">
+                <option value="phone">По номеру телефона</option>
+                <option value="contract">По номеру договора и паролю</option>
+            </select>
+        </div>
+
+        <div id="phoneGroup" class="visible">
+            <div class="homey-form-group">
+                <label class="homey-form-label" for="phone">Номер телефона</label>
+                <input class="homey-form-input" id="phone" type="text" value="" placeholder="+7XXXXXXXXXX"/>
+            </div>
+    
+            <div id="contractsGroup" class="homey-form-group hidden">
+                <label class="homey-form-label" for="contracts">Номер договора</label>
+                <select class="homey-form-select" name="contracts" id="contracts"></select>
+            </div>
+    
+            <div id="smsCodeGroup" class="homey-form-group hidden">
+                <label class="homey-form-label" for="smsCode">Код из СМС</label>
+                <input class="homey-form-input" id="smsCode" type="text" value="" placeholder="XXXX"/>
+            </div>
+        </div>
+
+        <div id="contractGroup" class="hidden">
+            <div class="homey-form-group">
+                <label class="homey-form-label" for="contract">Номер договора</label>
+                <input class="homey-form-input" id="contract" type="text" value=""/>
+            </div>
+            
+            <div class="homey-form-group">
+                <label class="homey-form-label" for="password">Пароль</label>
+                <input class="homey-form-input" id="password" type="password" value=""/>
+            </div>
+        </div>
+
+        <button id="submit" class="homey-button-primary-full is-disabled">Получить код</button>
+    </fieldset>
+</div>
+
+<script type="application/javascript">
+    Homey.setTitle("Авторизация");
+
+    const auth = document.getElementById("auth");
+    const authType = document.getElementById("authType");
+    const phoneGroup = document.getElementById("phoneGroup");
+    const phone = document.getElementById("phone");
+    const contractsGroup = document.getElementById("contractsGroup");
+    const contracts = document.getElementById("contracts");
+    const smsCodeGroup = document.getElementById("smsCodeGroup");
+    const smsCode = document.getElementById("smsCode");
+    const contractGroup = document.getElementById("contractGroup");
+    const contract = document.getElementById("contract");
+    const password = document.getElementById("password");
+    const submit = document.getElementById("submit");
+    
+    const SEND_CODE_TEXT = "Получить код";
+    const LOGIN_TEXT = "Авторизоваться";
+    let contractsArray = [];
+
+    const show = el => el.classList.replace("hidden", "visible");
+    const hide = el => el.classList.replace("visible", "hidden");
+    const enable = el => el.classList.remove("is-disabled");
+    const disable = el => el.classList.add("is-disabled");
+    const loading = (el, state) => el.classList.toggle("is-loading", state);
+
+    function normalizePhoneNumber(input) {
+        const digits = input.replace(/\D/g, "");
+        if (digits.length !== 11) return null;
+        if (digits.startsWith("8")) return "7" + digits.slice(1);
+        if (digits.startsWith("7")) return digits;
+        return null;
+    }
+
+    // Выбор типа авторизации
+    authType.addEventListener("change", event => {
+        if (event.target.value === "phone") {
+            phone.value = "";
+            phone.style.boxShadow = "";
+            hide(contractsGroup);
+            hide(smsCodeGroup);
+            hide(contractGroup);
+            show(phoneGroup);
+            submit.textContent = SEND_CODE_TEXT;
+        } else {
+            contract.value = "";
+            password.value = "";
+            hide(phoneGroup);
+            show(contractGroup);
+            submit.textContent = LOGIN_TEXT;
+        }
+        disable(submit);
+    });
+
+    // Ввод номера телефона
+    phone.addEventListener("input", async event => {
+        hide(contractsGroup);
+        hide(smsCodeGroup);
+        disable(submit);
+        submit.textContent = SEND_CODE_TEXT;
+        phone.style.boxShadow = "";
+
+        const input = event.target.value;
+        if (normalizePhoneNumber(input)) {
+            await Homey.emit("authGetContracts", input).then(_contracts => {
+                contractsArray = _contracts;
+                if (Array.isArray(_contracts) && _contracts.length > 0) {
+                    contracts.innerHTML = "";
+                    _contracts.forEach(contract => {
+                        if (!contract.accountId) return;
+                        const option = document.createElement("option");
+                        option.textContent = `${contract.accountId} | ${contract.address}`;
+                        option.value = contract.accountId;
+                        contracts.appendChild(option);
+                    });
+
+                    show(contractsGroup);
+                    enable(submit);
+                }
+            }).catch(() => {
+                phone.style.boxShadow = "0 0 0 2px #FF0000";
+            });
+        }
+    });
+
+    // Выбор договора
+    contracts.addEventListener("change", event => {
+        hide(smsCodeGroup);
+        enable(submit);
+        submit.textContent = SEND_CODE_TEXT;
+    })
+
+    // Ввод кода из СМС
+    smsCode.addEventListener("input", event => {
+        const input = event.target.value;
+        input.length === 4 ? enable(submit) : disable(submit);
+    });
+
+    // Кнопка отправки
+    submit.addEventListener("click", async event => {
+        if (submit.classList.contains("is-disabled") || submit.classList.contains("is-loading")) return;
+        submit.classList.add("is-loading");
+        auth.disabled = true;
+
+        if (authType.value === "phone") {
+            const phoneNumber = normalizePhoneNumber(phone.value);
+            const contractId = contracts.value;
+            const contract = contractsArray.find(contract => contract.accountId === contractId);
+
+            if (phoneNumber && contractId) {
+                if (!smsCodeGroup.classList.contains("visible")) {
+                    await Homey.emit("authGetCode", { phone: phoneNumber, contract })
+                        .then(() => {
+                            smsCode.value = "";
+                            show(smsCodeGroup);
+                            disable(submit);
+                            submit.textContent = LOGIN_TEXT;
+                        })
+                        .catch(error => Homey.alert(error.message));
+                } else {
+                    await Homey.emit("authWithCode", { phone: phoneNumber, contract, code: smsCode.value })
+                        .then(() => Homey.nextView())
+                        .catch(error => {
+                            smsCode.value = "";
+                            Homey.alert(error.message);
+                        });
+                }
+            }
+        }
+
+        auth.disabled = false;
+        submit.classList.remove("is-loading");
+    })
+</script>

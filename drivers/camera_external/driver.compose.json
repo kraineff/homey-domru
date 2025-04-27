@@ -14,11 +14,13 @@
     "capabilitiesOptions": {},
     "pair": [
         {
+            "id": "list_accounts",
+            "$template": "list_accounts"
+        },
+        {
             "id": "list_devices",
             "template": "list_devices",
-            "navigation": {
-                "next": "add_devices"
-            }
+            "navigation": { "next": "add_devices" }
         },
         {
             "id": "add_devices",
