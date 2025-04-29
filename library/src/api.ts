@@ -5,8 +5,6 @@ import { retry } from "wretch/middlewares";
 import { fetch } from "node-fetch-native";
 import type { DomruAccessControl, DomruContract, DomruForpostCamera, DomruSubscriberPlace, DomruToken } from "./types/index.js";
 
-const errorMsg = (message: string) => () => { throw new Error(message) };
-
 export type DomruStorage = {
     deviceId?: string;
     token?: DomruToken;
@@ -55,13 +53,7 @@ export class DomruAPI {
                         return context;
                     }
                 })
-            ])
-            .resolve(resolver => {
-                return resolver
-                    .error(400, error => { throw Error(error.json?.errorMessage || "Неверный запрос") })
-                    .error(401,    () => { throw Error("Нет токена") })
-                    .error(403, error => { throw Error(error.json?.errorMessage || error.message) });
-            });
+            ]);
     }
 
     async authWithStorage(storage: DomruStorage) {
@@ -76,7 +68,6 @@ export class DomruAPI {
     private async authRefreshToken() {
         return this.request()
             .get("/auth/v2/session/refresh")
-            .error(409, errorMsg("Неверный токен"))
             .json<DomruToken>()
             .then(token => this.authWithStorage({ ...this.storage, token }))
             .catch(() => this.authWithStorage({ ...this.storage, token: undefined }));
@@ -106,7 +97,6 @@ export class DomruAPI {
                 login: phone,
                 confirm1: code,
             }, `/auth/v3/auth/${phone}/confirmation`)
-            .error(409, errorMsg("Неверный договор"))
             .json<DomruToken>()
             .then(token => this.authWithStorage({ ...this.storage, token }));
     }
@@ -143,7 +133,6 @@ export class DomruAPI {
     async setAccessControlAction(placeId: number, accessControlId: number, action: string) {
         await this.request(placeId)
             .post({ name: action }, `/rest/v1/places/${placeId}/accesscontrols/${accessControlId}/actions`)
-            .error(500, errorMsg("Неверное место или устройство доступа"))
             .text();
     }
 
@@ -169,14 +158,12 @@ export class DomruAPI {
     async getForpostCameraSnapshot(forpostCameraId: number, placeId?: number) {
         return this.request(placeId)
             .get(`/rest/v1/forpost/cameras/${forpostCameraId}/snapshots`)
-            .error(500, errorMsg("Неверная камера"))
             .blob();
     }
 
     async getForpostCameraVideo(forpostCameraId: number, placeId?: number) {
         return this.request(placeId)
             .get(`/rest/v1/forpost/cameras/${forpostCameraId}/video?LightStream=0`)
-            .error(500, errorMsg("Неверная камера"))
             .json<string>(res => res.data.URL);
     }
 }
