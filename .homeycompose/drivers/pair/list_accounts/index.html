@@ -89,15 +89,16 @@
             hide(smsCodeGroup);
             hide(contractGroup);
             show(phoneGroup);
+            disable(submit);
             submit.textContent = SEND_CODE_TEXT;
         } else {
             contract.value = "";
             password.value = "";
             hide(phoneGroup);
             show(contractGroup);
+            enable(submit);
             submit.textContent = LOGIN_TEXT;
         }
-        disable(submit);
     });
 
     // Ввод номера телефона
@@ -174,6 +175,15 @@
                         });
                 }
             }
+        }
+        else if (authType.value === "contract") {
+            await Homey.emit("authWithPassword", { login: contract.value, password: password.value })
+                .then(() => Homey.nextView())
+                .catch(error => {
+                    contract.value = "";
+                    password.value = "";
+                    Homey.alert(error.message);
+                });
         }
 
         auth.disabled = false;

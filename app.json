@@ -122,6 +122,9 @@
       "capabilitiesOptions": {},
       "pair": [
         {
+          "id": "list_accounts"
+        },
+        {
           "id": "list_devices",
           "template": "list_devices",
           "navigation": {

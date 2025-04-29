@@ -5,17 +5,11 @@ export default class DomruApp extends Homey.App {
     readonly api = new DomruAPI();
 
     async onInit() {
-        const token = this.homey.settings.get("token");
-        token && await this.api.authWithToken(JSON.parse(token));
+        const storage = this.homey.settings.get("storage");
+        storage && await this.api.authWithStorage(JSON.parse(storage));
 
-        this.api.events.on("token_update", token => {
-            console.debug("Токен обновлен", token);
-            this.homey.settings.set("token", JSON.stringify(token));
-        });
-
-        this.api.events.on("token_invalid", () => {
-            console.debug("Токен устарел");
-            this.homey.settings.unset("token");
+        this.api.events.on("storage_update", storage => {
+            this.homey.settings.set("storage", JSON.stringify(storage));
         });
     }
 }

@@ -24,7 +24,7 @@ module.exports = class DomruAccessControlDevice extends Homey.Device {
             const cameraId = Number(accessControl.externalCameraId);
             this.image = await this.homey.images.createImage();
             this.image.setStream(async (stream: Writable) => {
-                const image = await this.api.getForpostCameraSnapshot(cameraId);
+                const image = await this.api.getForpostCameraSnapshot(cameraId, this.placeId);
                 const buffer = Buffer.from(await image.arrayBuffer());
                 stream.write(buffer);
                 stream.end();
