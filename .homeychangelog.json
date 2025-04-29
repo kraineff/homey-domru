@@ -1,4 +1,8 @@
 {
+    "1.1.2": {
+        "en": "Added support for older versions",
+        "ru": "Добавлена поддержка старых версий"
+    },
     "1.1.1": {
         "en": "Added password authorization",
         "ru": "Добавлена авторизация по паролю"

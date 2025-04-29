@@ -3,6 +3,7 @@ import EventEmitter from "events";
 import wretch from "wretch";
 import { retry } from "wretch/middlewares";
 import type { DomruAccessControl, DomruContract, DomruForpostCamera, DomruSubscriberPlace, DomruToken } from "./types/index.js";
+import { fetch, FormData } from "node-fetch-native";
 
 const errorMsg = (message: string) => () => { throw new Error(message) };
 
@@ -21,6 +22,7 @@ export class DomruAPI {
 
     request(placeId?: number) {
         return wretch("https://myhome.proptech.ru")
+            .polyfills({ fetch, FormData })
             .middlewares([
                 next => (url, options) => {
                     if (!!this.storage?.token && !!this.storage?.deviceId && !url.includes("/auth/v2/login/")) {
