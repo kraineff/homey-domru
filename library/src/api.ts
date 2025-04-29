@@ -2,8 +2,8 @@ import crypto from "crypto";
 import EventEmitter from "events";
 import wretch from "wretch";
 import { retry } from "wretch/middlewares";
+import { fetch } from "node-fetch-native";
 import type { DomruAccessControl, DomruContract, DomruForpostCamera, DomruSubscriberPlace, DomruToken } from "./types/index.js";
-import { fetch, FormData } from "node-fetch-native";
 
 const errorMsg = (message: string) => () => { throw new Error(message) };
 
@@ -22,11 +22,12 @@ export class DomruAPI {
 
     request(placeId?: number) {
         return wretch("https://myhome.proptech.ru")
-            .polyfills({ fetch, FormData })
+            .polyfills({ fetch })
             .middlewares([
                 next => (url, options) => {
                     if (!!this.storage?.token && !!this.storage?.deviceId && !url.includes("/auth/v2/login/")) {
-                        const { deviceId, token: { operatorId, accessToken, refreshToken } } = this.storage;
+                        const { deviceId } = this.storage;
+                        const { operatorId, accessToken, refreshToken } = this.storage.token;
 
                         options.headers = {
                             ...options.headers,
@@ -42,12 +43,17 @@ export class DomruAPI {
                 retry({
                     maxAttempts: 3,
                     retryOnNetworkError: true,
-                    until: (response) => !!response && (response.ok || response.status === 300 || (response.status >= 400 && response.status < 500)),
+                    skip: (url) => url.includes("/auth/v2/session/refresh"),
+                    until: (response) => {
+                        if (!response) return false;
+                        if (response.ok || response.status === 300) return true;
+                        if (response.status >= 400 && response.status < 500 && response.status !== 401) return true;
+                        return false;
+                    },
                     onRetry: async (context) => {
                         if (context.response?.status === 401) await this.authRefreshToken();
                         return context;
-                    },
-                    skip: (url) => url.includes("/auth/v2/session/refresh")
+                    }
                 })
             ])
             .resolve(resolver => {
@@ -61,7 +67,7 @@ export class DomruAPI {
     async authWithStorage(storage: DomruStorage) {
         this.storage = {
             ...storage,
-            deviceId: storage.deviceId || crypto.randomUUID().toUpperCase()
+            deviceId: storage.deviceId || crypto.randomUUID().toUpperCase(),
         };
         this.events.emit("storage_update", this.storage);
         return storage.token!;
