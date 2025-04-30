@@ -1,6 +1,6 @@
 {
     "id": "ru.dom.smart",
-    "version": "1.1.3",
+    "version": "1.1.4",
     "platforms": ["local"],
     
     "compatibility": ">=12.1.0",
@@ -12,8 +12,8 @@
         "ru": "Дом.ру"
     },
     "description": {
-        "en": "Know Who's There",
-        "ru": "Знайте, кто пришел"
+        "en": "Home security starts at the entrance",
+        "ru": "Безопасность дома начинается с входа"
     },
     "category": ["security"],
     "permissions": [],

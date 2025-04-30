@@ -1,1 +1,1 @@
-See who's at the door. Open the intercom. View cameras.
+See who’s at your door, talk via video call, unlock the door from anywhere in the world, and view recordings from the camera.
