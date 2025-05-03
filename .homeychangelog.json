@@ -1,4 +1,8 @@
 {
+    "1.2.1": {
+        "en": "Minor fixes",
+        "ru": "Небольшие исправления"
+    },
     "1.2.0": {
         "en": "Added trigger for incoming calls for access devices",
         "ru": "Добавлен триггер входящего звонка для устройства доступа"
