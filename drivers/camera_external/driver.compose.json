@@ -3,7 +3,7 @@
     "platforms": ["local"],
     "connectivity": ["cloud"],
     "name": {
-        "en": "External camera",
+        "en": "External Camera",
         "ru": "Внешняя камера"
     },
     "images": {

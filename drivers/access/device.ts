@@ -1,14 +1,16 @@
 import Homey from "homey";
 import DomruApp from "../../app";
-import { DomruAPI } from "domru";
+import { DomruAPI, DomruSipClient } from "domru";
 import { Writable } from "node:stream";
+import { DomruAccessControlDriver } from "./driver";
 
-module.exports = class DomruAccessControlDevice extends Homey.Device {
+export class DomruAccessControlDevice extends Homey.Device {
     private api!: DomruAPI;
     private id!: number;
     private placeId!: number;
     private image?: Homey.Image;
     private openDuration!: number;
+    public sipClient!: DomruSipClient;
 
     async onInit() {
         this.api = (this.homey.app as DomruApp).api;
@@ -19,6 +21,15 @@ module.exports = class DomruAccessControlDevice extends Homey.Device {
         const accessControls = await this.api.getAccessControls(this.placeId);
         const accessControl = accessControls.find(ac => ac.id === this.id);
         if (!accessControl) throw new Error("Неверное устройство доступа");
+        
+        const instanceId = JSON.parse(this.homey.settings.get("storage")).deviceId;
+        const sip = await this.api.getAccessControlSipdevice(this.placeId, this.id);
+        this.sipClient = new DomruSipClient({ ...sip, id: instanceId });
+        this.sipClient.events.on("invite", async () => {
+            await this.image?.update();
+            (this.driver as DomruAccessControlDriver).triggerInviteReceived(this);
+        });
+        this.sipClient.connect();
 
         if (!Number.isNaN(accessControl.externalCameraId)) {
             const cameraId = Number(accessControl.externalCameraId);
@@ -41,8 +52,14 @@ module.exports = class DomruAccessControlDevice extends Homey.Device {
         });
     }
 
-    async onDeleted() {
+    async onUninit() {
         if (this.image) await this.image.unregister();
+        this.sipClient.disconnect();
+        this.sipClient.events.removeAllListeners();
+    }
+
+    async onDeleted() {
+        await this.onUninit();
     }
 
     // @ts-ignore
@@ -51,3 +68,5 @@ module.exports = class DomruAccessControlDevice extends Homey.Device {
             this.openDuration = newSettings.open_duration;
     }
 }
+
+module.exports = DomruAccessControlDevice;

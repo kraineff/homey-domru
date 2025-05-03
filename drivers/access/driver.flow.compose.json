@@ -1,0 +1,12 @@
+{
+    "triggers": [
+        {
+            "id": "invite_received",
+            "highlight": true,
+            "title": {
+                "en": "Incoming call",
+                "ru": "Поступил звонок"
+            }
+        }
+    ]
+}

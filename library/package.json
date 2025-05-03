@@ -33,6 +33,7 @@
         "typescript": "^5.8.3"
     },
     "dependencies": {
+        "jssip": "^3.10.1",
         "node-fetch-native": "^1.6.6",
         "wretch": "^2.11.0"
     }

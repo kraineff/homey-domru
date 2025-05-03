@@ -140,7 +140,12 @@ export class DomruAPI {
         const installationId = this.storage?.deviceId;
         return this.request(placeId)
             .post({ installationId }, `/rest/v1/places/${placeId}/accesscontrols/${accessControlId}/sipdevices`)
-            .json();
+            .json<{
+                id: string;
+                realm: string;
+                login: string;
+                password: string;
+            }>(res => res.data);
     }
 
     async getAccessControlSnapshot(placeId: number, accessControlId: number, entranceId?: number, width?: number, height?: number) {

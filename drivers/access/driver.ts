@@ -2,11 +2,17 @@ import Homey from "homey";
 import DomruApp from "../../app";
 import { DomruAPI } from "domru";
 
-module.exports = class DomruAccessControlDriver extends Homey.Driver {
+export class DomruAccessControlDriver extends Homey.Driver {
     private api!: DomruAPI;
+    private inviteReceivedTrigger!: Homey.FlowCardTriggerDevice;
 
     async onInit() {
         this.api = (this.homey.app as DomruApp).api;
+        this.inviteReceivedTrigger = this.homey.flow.getDeviceTriggerCard("invite_received");
+    }
+
+    triggerInviteReceived(device: Homey.Device) {
+        this.inviteReceivedTrigger.trigger(device);
     }
 
     async onPair(session: Homey.Driver.PairSession) {
@@ -34,9 +40,11 @@ module.exports = class DomruAccessControlDriver extends Homey.Driver {
             const placeIds = places.map(place => place.place.id);
             const promises = placeIds.map(async placeId => {
                 const devices = await this.api.getAccessControls(placeId);
-                return devices.map(({ id, name }) => ({ name, data: { id, placeId } }));
+                return devices.map(async ({ id, name }) => ({ name, data: { id, placeId } }));
             });
             return await Promise.all(promises).then(devices => devices.flat());
         });
     }
 }
+
+module.exports = DomruAccessControlDriver;

@@ -1,6 +1,6 @@
 {
     "id": "ru.dom.smart",
-    "version": "1.1.4",
+    "version": "1.2.0",
     "platforms": ["local"],
     
     "compatibility": ">=12.1.0",
