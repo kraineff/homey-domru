@@ -4,20 +4,32 @@ import { Writable } from "node:stream";
 
 module.exports = class DomruCameraDevice extends Homey.Device {
     private image!: Homey.Image;
+    private video!: any;
 
     async onInit() {
         const api = (this.homey.app as DomruApp).api;
         const id = this.getData().id;
 
-        this.image = await this.homey.images.createImage();
-        this.image.setStream(async (stream: Writable) => {
-            const image = await api.getForpostCameraSnapshot(id);
-            const buffer = Buffer.from(await image.arrayBuffer());
-            stream.write(buffer);
-            stream.end();
-        });
-        await this.image.update();
-        await this.setCameraImage("snapshot", "Камера", this.image);
+        try {
+            this.image = await this.homey.images.createImage();
+            this.image.setStream(async (stream: Writable) => {
+                const image = await api.getForpostCameraSnapshot(id);
+                const buffer = Buffer.from(await image.arrayBuffer());
+                stream.write(buffer);
+                stream.end();
+            });
+            await this.image.update();
+            await this.setCameraImage("main", "Фото", this.image);
+    
+            // @ts-ignore
+            this.video = await this.homey.videos.createVideoRTSP();
+            this.video.registerVideoUrlListener(async () => {
+                const url = await api.getForpostCameraVideo(id);
+                return { url };
+            });
+            //@ts-ignore
+            await this.setCameraVideo("main", "Видео", this.video);
+        } catch (error) {}
     }
 
     async onDeleted() {

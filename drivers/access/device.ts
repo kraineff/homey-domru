@@ -9,6 +9,7 @@ export class DomruAccessControlDevice extends Homey.Device {
     private id!: number;
     private placeId!: number;
     private image?: Homey.Image;
+    private video?: any;
     private openDuration!: number;
     public sipClient!: DomruSipClient;
 
@@ -22,7 +23,7 @@ export class DomruAccessControlDevice extends Homey.Device {
         const accessControl = accessControls.find(ac => ac.id === this.id);
         if (!accessControl) throw new Error("Неверное устройство доступа");
         
-        const instanceId = JSON.parse(this.homey.settings.get("storage")).deviceId;
+        const instanceId = (JSON.parse(this.homey.settings.get("storage")).deviceId as string).toLowerCase();
         const sip = await this.api.getAccessControlSipdevice(this.placeId, this.id);
         this.sipClient = new DomruSipClient({ ...sip, id: instanceId });
         this.sipClient.events.on("invite", async () => {
@@ -31,18 +32,30 @@ export class DomruAccessControlDevice extends Homey.Device {
         });
         this.sipClient.connect();
 
-        if (!Number.isNaN(accessControl.externalCameraId)) {
-            const cameraId = Number(accessControl.externalCameraId);
-            this.image = await this.homey.images.createImage();
-            this.image.setStream(async (stream: Writable) => {
-                const image = await this.api.getForpostCameraSnapshot(cameraId, this.placeId);
-                const buffer = Buffer.from(await image.arrayBuffer());
-                stream.write(buffer);
-                stream.end();
-            });
-            await this.image.update();
-            await this.setCameraImage("snapshot", "Камера", this.image);
-        }
+        try {
+            if (!Number.isNaN(accessControl.externalCameraId)) {
+                const cameraId = Number(accessControl.externalCameraId);
+
+                this.image = await this.homey.images.createImage();
+                this.image.setStream(async (stream: Writable) => {
+                    const image = await this.api.getForpostCameraSnapshot(cameraId, this.placeId);
+                    const buffer = Buffer.from(await image.arrayBuffer());
+                    stream.write(buffer);
+                    stream.end();
+                });
+                await this.image.update();
+                await this.setCameraImage("main", "Фото", this.image);
+
+                // @ts-ignore
+                this.video = await this.homey.videos.createVideoRTSP();
+                this.video.registerVideoUrlListener(async () => {
+                    const url = await this.api.getForpostCameraVideo(cameraId, this.placeId);
+                    return { url };
+                });
+                //@ts-ignore
+                await this.setCameraVideo("main", "Видео", this.video);
+            }
+        } catch (error) {}
 
         await this.setCapabilityValue("locked", true);
         this.registerCapabilityListener("locked", async value => {
